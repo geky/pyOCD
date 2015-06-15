@@ -1,6 +1,6 @@
 """
  mbed CMSIS-DAP debugger
- Copyright (c) 2006-2013 ARM Limited
+ Copyright (c) 2006-2015 ARM Limited
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,4 +15,9 @@
  limitations under the License.
 """
 
-from gdbserver import GDBServer
+SIGINT = 2
+SIGSEGV = 11
+SIGILL = 4
+SIGSTOP = 17
+SIGTRAP = 5
+SIGBUS = 10

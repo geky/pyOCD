@@ -5,26 +5,15 @@ pyOCD is an Open Source python 2.7 based library for programming and debugging
 ARM Cortex-M microcontrollers using CMSIS-DAP. Linux, OSX and Windows are 
 supported.
 
-You can use the following interfaces:
+The following is provided from just a python interpretor:
 
-#. From a python interpretor:
-
-   -  halt, step, resume execution
-   -  read/write memory
-   -  read/write block memory
-   -  read-write core register
-   -  set/remove hardware breakpoints
-   -  flash new binary
-   -  reset
-
-#. From a GDB client, you have all the features provided by gdb:
-
-   -  load a .elf file
-   -  read/write memory
-   -  read/write core register
-   -  set/remove hardware breakpoints
-   -  high level stepping
-   -  ...
+-  halt, step, resume execution
+-  read/write memory
+-  read/write block memory
+-  read-write core register
+-  set/remove hardware breakpoints
+-  flash new binary
+-  reset
 
 Installation
 ------------
@@ -55,34 +44,6 @@ You can also install from source by cloning the git repository and running
 .. code:: shell
 
     python setup.py install
-
-Standalone GDB Server
----------------------
-
-When you install pyOCD via pip, you should be able to execute the
-following in order to start a GDB server powered by pyOCD:
-
-.. code:: shell
-
-    pyocd-gdbserver
-
-You can get additional help by running ``pyocd-gdbserver --help``.
-
-Recommended GDB and IDE setup
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The GDB server works well with Eclipse and the GNU ARM Eclipse OpenOCD plug-in.
-To view register the Embedded System Register Viewer plugin can be used.
-These can be installed from inside eclipse using the following links:
-GNU ARM Eclipse: http://gnuarmeclipse.sourceforge.net/updates
-Embedded System Register Viewer: http://embsysregview.sourceforge.net/update
-
-The pyOCD gdb server executable will run as a drop in place replacement for
-OpenOCD. If a supported mbed development board is being debugged the target
-does not need to be specified, as pyOCD will automatically determine this.
-If an external processor is being debugged then ``-t [processor]`` must
-be added to the command line. For more information on setup see
-`this post for OpenOCD <http://gnuarmeclipse.livius.net/blog/openocd-debugging/>`__
 
 Development Setup
 -----------------
@@ -118,25 +79,6 @@ A series of tests are provided in the test directory:
    -  erase pages
    -  flash a binary
     
--  gdb\_test.py: launch a gdbserver
--  gdb\_server.py: an enhanced version of gdbserver which provides the following options:
-
-   -  "-p", "--port", help = "Write the port number that GDB server will open."
-   -  "-b", "--board", help="Connect to board by board id."
-   -  "-l", "--list", help = "List all connected boards."
-   -  "-d", "--debug", help = "Set the level of system logging output."
-   -  "-t", "--target", help = "Override target to debug."
-   -  "-n", "--nobreak", help = "Disable halt at hardfault handler."
-   -  "-r", "--reset-break", help = "Halt the target when reset."
-   -  "-s", "--step-int", help = "Allow single stepping to step into interrupts."
-   -  "-f", "--frequency", help = "Set the SWD clock frequency in Hz."
-   -  "-o", "--persist", help = "Keep GDB server running even after remote has detached."
-   -  "-bh", "--soft-bkpt-as-hard", help = "Replace software breakpoints with hardware breakpoints."
-   -  "-ce", "--chip\_erase", help="Use chip erase when programming."
-   -  "-se", "--sector\_erase", help="Use sector erase when programming."
-   -  "-hp", "--hide\_progress", help = "Don't display programming progress."
-   -  "-fp", "--fast\_program", help = "Use only the CRC of each page to determine if it already has the same data."
-
 Hello World example code
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -176,34 +118,6 @@ Hello World example code
 
     board.uninit()
 
-GDB server example
-~~~~~~~~~~~~~~~~~~
-
-Python:
-
-.. code:: python
-
-    from pyOCD.gdbserver import GDBServer
-    from pyOCD.board import MbedBoard
-
-    import logging
-    logging.basicConfig(level=logging.INFO)
-
-    board = MbedBoard.chooseBoard()
-
-    # start gdbserver
-    gdb = GDBServer(board, 3333)
-
-gdb server:
-
-::
-
-    arm-none-eabi-gdb basic.elf
-
-    <gdb> target remote localhost:3333
-    <gdb> load
-    <gdb> continue
-
 Architecture
 ------------
 
@@ -239,9 +153,3 @@ Flash
 
 Contains flash algorithm in order to flash a new binary into the target.
 
-gdbserver
-~~~~~~~~~
-Start a GDB server. The server listens on a specific port. You can then
-connect a GDB client to it and debug/program the target.
-
-Then you can debug a board which is composed by an interface, a target, a transport and a flash

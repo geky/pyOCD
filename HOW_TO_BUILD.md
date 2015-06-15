@@ -7,7 +7,7 @@ possible for PyInstaller to work across all supported operating
 system, but these steps have only been tested on Windows 7 64-bit and
 Ubuntu 14.04.
 
-pyOCD is an open source GDB server library written in Python and
+pyOCD is an open source debugging library written in Python and
 maintained by pyOCD community, it depends on several libraries like
 pyusb under Linux, and pywinusb under Windows. Pyinstaller was chosen
 to bundle it into a single executable file, so that the pyOCD
@@ -18,7 +18,7 @@ Instructions
 ------------
 
 Follow the following instructions from a fresh checkout of pyOCD to
-build a single file executable containing the pyOCD GDB server.  These
+build a single file executable containing the pyOCD flash tool.  These
 instructions assume that you already have Python installed:
 
 The following script shows the basic steps that one must follow:
@@ -37,7 +37,6 @@ pip install --editable .
 pip install https://github.com/pyinstaller/pyinstaller/archive/develop.zip
 
 # Create single-file executables
-pyinstaller --onefile pyOCD/tools/gdb_server.py
 pyinstaller --onefile pyOCD/tools/flash_tool.py
 ```
 
