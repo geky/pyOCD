@@ -18,7 +18,6 @@ from xml.etree.ElementTree import Element, SubElement, tostring
 
 from .target import Target
 from .target import TARGET_RUNNING, TARGET_HALTED, WATCHPOINT_READ, WATCHPOINT_WRITE, WATCHPOINT_READ_WRITE
-from ..transport import READ_START, READ_NOW, READ_END
 from ..transport import DP_REG, AP_REG
 import gdb_signals as signals
 from ..utility import conversion
@@ -244,6 +243,11 @@ class CortexM(Target):
        - read/write core registers
        - set/remove hardware breakpoints
     """
+
+    # Read modes:
+    READ_START = 1
+    READ_NOW = 2
+    READ_END = 3
 
     class RegisterInfo(object):
         def __init__(self, name, bitsize, reg_type, reg_group):
@@ -513,7 +517,12 @@ class CortexM(Target):
         read a memory location. By default, a word will
         be read
         """
-        return self.transport.readMem(addr, transfer_size, mode)
+        # Must be converted to transport read modes
+        transport_mode = { CortexM.READ_START: self.transport.READ_START,
+                           CortexM.READ_NOW: self.transport.READ_NOW,
+                           CortexM.READ_END: self.transport.READ_END 
+                         } [mode]
+        return self.transport.readMem(addr, transfer_size, transport_mode)
 
     def read32(self, addr):
         """
@@ -849,16 +858,16 @@ class CortexM(Target):
             # we're running so slow compared to the target that it's not necessary.
             # Read it and assert that S_REGRDY is set
 
-            self.readMemory(DHCSR, mode=READ_START)
-            self.readMemory(DCRDR, mode=READ_START)
+            self.readMemory(DHCSR, mode=CortexM.READ_START)
+            self.readMemory(DCRDR, mode=CortexM.READ_START)
 
         # Read all results
         reg_vals = []
         for reg in reg_list:
-            dhcsr_val = self.readMemory(DHCSR, mode=READ_END)
+            dhcsr_val = self.readMemory(DHCSR, mode=CortexM.READ_END)
             assert dhcsr_val & S_REGRDY
             # read DCRDR
-            val = self.readMemory(DCRDR, mode=READ_END)
+            val = self.readMemory(DCRDR, mode=CortexM.READ_END)
 
             # Special handling for registers that are combined into a single DCRSR number.
             if (reg < 0) and (reg >= -4):
@@ -932,10 +941,10 @@ class CortexM(Target):
             # Technically, we need to poll S_REGRDY in DHCSR here to ensure the
             # register write has completed.
             # Read it and assert that S_REGRDY is set
-            self.readMemory(DHCSR, mode=READ_START)
+            self.readMemory(DHCSR, mode=CortexM.READ_START)
 
         for reg in reg_list:
-            dhcsr_val = self.readMemory(DHCSR, mode=READ_END)
+            dhcsr_val = self.readMemory(DHCSR, mode=CortexM.READ_END)
             assert dhcsr_val & S_REGRDY
 
     def setBreakpoint(self, addr):
