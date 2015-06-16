@@ -148,7 +148,7 @@ class MbedBoard(Board):
                     # exception comes in there will be no resources to close
                     sleep(0.2)
             
-                all_mbeds = DAPLink.getAllInterfaces(mbed_vid, mbed_pid)
+                all_mbeds = DAPLink.getConnectedInterfaces(mbed_vid, mbed_pid)
                 if all_mbeds == None:
                     all_mbeds = []
                 

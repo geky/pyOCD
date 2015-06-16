@@ -15,9 +15,16 @@
  limitations under the License.
 """
 
-from pyDAPLink import READ_NOW, READ_START, READ_END
-
 class Transport(object):
+
+    # Read modes that can be overwritten for each transport:
+    # Start a read.  This must be followed by READ_END of the
+    # same type and in the same order
+    READ_START = 1
+    # Read immediately
+    READ_NOW = 2
+    # Get the result of a read started with READ_START
+    READ_END = 3
 
     def __init__(self, interface):
         self.interface = interface
@@ -44,10 +51,10 @@ class Transport(object):
     def readAP(self, addr, mode=READ_NOW):
         return
 
-    def writeMem(self, addr, data, transfer_size = 32):
+    def writeMem(self, addr, data, transfer_size=32):
         return
 
-    def readMem(self, addr, transfer_size = 32, mode=READ_NOW):
+    def readMem(self, addr, transfer_size=32, mode=READ_NOW):
         return
 
     def writeBlock32(self, addr, data):
