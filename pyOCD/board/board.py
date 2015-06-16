@@ -17,7 +17,6 @@
 
 from pyOCD.target import TARGET
 from pyOCD.transport import TRANSPORT
-from pyOCD.interface import INTERFACE
 from pyOCD.flash import FLASH
 
 import logging
@@ -28,10 +27,7 @@ class Board(object):
     to create a board
     """
     def __init__(self, target, flash, interface, transport = "cmsis_dap", frequency = 1000000):
-        if isinstance(interface, str) == False:
-            self.interface = interface
-        else:
-            self.interface = INTERFACE[interface].chooseInterface(INTERFACE[interface])
+        self.interface = interface
         self.transport = TRANSPORT[transport](self.interface)
         self.target = TARGET[target](self.transport)
         self.flash = FLASH[flash](self.target)

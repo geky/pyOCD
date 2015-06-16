@@ -15,7 +15,11 @@
  limitations under the License.
 """
 
-from cmsis_dap import CMSIS_DAP, TransferError
+from pyDAPLink import AP_REG, DP_REG
+from pyDAPLink import TransferError
+from transport import READ_START, READ_NOW, READ_END
+
+from cmsis_dap import CMSIS_DAP
 
 TRANSPORT = {'cmsis_dap': CMSIS_DAP
             }

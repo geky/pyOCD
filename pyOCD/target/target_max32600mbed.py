@@ -16,7 +16,6 @@
 """
 
 from cortex_m import CortexM
-from pyOCD.transport.cmsis_dap_core import PINS
 import logging
 
 class MAX32600MBED(CortexM):

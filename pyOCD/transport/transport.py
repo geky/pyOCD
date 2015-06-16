@@ -14,17 +14,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 """
-# Read modes:
-# Start a read.  This must be followed by READ_END of the 
-# same type and in the same order
-READ_START = 1
-# Read immediately
-READ_NOW = 2
-# Get the result of a read started with READ_START
-READ_END = 3
 
-class TransferError(ValueError):
-    pass
+from pyDAPLink import READ_NOW, READ_START, READ_END
 
 class Transport(object):
 
@@ -74,8 +65,11 @@ class Transport(object):
     def reset(self):
         return
 
-    def setClock(self):
+    def setClock(self, frequency):
         return
 
     def setDeferredTransfer(self, enable):
+        return
+
+    def flush(self):
         return

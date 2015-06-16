@@ -18,9 +18,9 @@
 import sys, os
 import logging, array
 
+from pyDAPLink import DAPLink
 from time import sleep
 from board import Board
-from pyOCD.interface import INTERFACE, usb_backend
 
 class BoardInfo(object):
     def __init__(self, name, target, binary):
@@ -148,7 +148,7 @@ class MbedBoard(Board):
                     # exception comes in there will be no resources to close
                     sleep(0.2)
             
-                all_mbeds = INTERFACE[usb_backend].getAllConnectedInterface(mbed_vid, mbed_pid)
+                all_mbeds = DAPLink.getAllInterfaces(mbed_vid, mbed_pid)
                 if all_mbeds == None:
                     all_mbeds = []
                 

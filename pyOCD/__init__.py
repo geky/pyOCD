@@ -17,7 +17,6 @@
 
 import board
 import flash
-import interface
 import target
 import transport
 import utility
