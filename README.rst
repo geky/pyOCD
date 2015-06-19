@@ -18,18 +18,12 @@ The following is provided from just a python interpretor:
 Installation
 ------------
 
-The latest stable version of pyOCD may be done via  `pip <https://pip.pypa.io/en/stable/index.html>`__ as follows:
-
-.. code:: shell
-
-    $ pip install --pre -U pyocd
-
 To install the latest development version (master branch), you can do
 the following:
 
 .. code:: shell
 
-    $ pip install --pre -U https://github.com/mbedmicro/pyOCD/archive/master.zip
+    $ pip install --pre -U https://github.com/<user>/pyOCD/archive/master.zip
 
 Note that you may run into permissions issues running these commands.
 You have a few options here:
@@ -43,7 +37,7 @@ You can also install from source by cloning the git repository and running
 
 .. code:: shell
 
-    python setup.py install
+    $ python setup.py install
 
 Development Setup
 -----------------
