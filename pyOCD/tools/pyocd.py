@@ -322,6 +322,7 @@ class PyOCDTool(object):
                 'h' :       self.handle_halt,
                 'disasm' :  self.handle_disasm,
                 'd' :       self.handle_disasm,
+                'map' :     self.handle_memory_map,
                 'log' :     self.handle_log,
                 'clock' :   self.handle_clock,
                 'exit' :    self.handle_exit,
@@ -376,7 +377,7 @@ class PyOCDTool(object):
             self.board = MbedBoard.chooseBoard(board_id=self.args.board, target_override=self.args.target, init_board=False, frequency=(self.args.clock * 1000))
             self.board.target.setAutoUnlock(False)
             self.board.target.setHaltOnConnect(False)
-        try:
+            try:
                 self.board.init()
             except Exception as e:
                 print "Exception while initing board:", e
@@ -433,7 +434,7 @@ class PyOCDTool(object):
         return self.exitCode
 
     def handle_list(self, args):
-                MbedBoard.listConnectedBoards()
+        MbedBoard.listConnectedBoards()
 
     def handle_info(self, args):
         print "Target:    %s" % self.target.part_number
@@ -481,7 +482,7 @@ class PyOCDTool(object):
 
     @cmdoptions([make_option('-h', "--halt", action="store_true")])
     def handle_reset(self, args, other):
-                print "Resetting target"
+        print "Resetting target"
         if args.halt:
             self.target.resetStopOnReset()
 
@@ -545,7 +546,7 @@ class PyOCDTool(object):
         addr = self.convert_value(args[0])
         if len(args) < 2:
             count = 4
-                else:
+        else:
             count = self.convert_value(args[1])
 
         if self.args.width == 8:
@@ -579,14 +580,18 @@ class PyOCDTool(object):
         elif self.args.width == 32:
             data = pyOCD.utility.conversion.word2byte(data)
 
-        self.target.writeBlockMemoryUnaligned8(addr, data)
+        if self.isFlashWrite(args):
+            target.flash.init()
+            target.flash.programPhrase(addr, data)
+        else:
+            self.target.writeBlockMemoryUnaligned8(addr, data)
 
     def handle_erase(self, args):
         self.flash.init()
         self.flash.eraseAll()
 
     def handle_unlock(self, args):
-                # Currently the same as erase.
+        # Currently the same as erase.
         if not self.didErase:
             self.target.massErase()
 
@@ -612,6 +617,9 @@ class PyOCDTool(object):
         else:
             print "Successfully halted device"
 
+    def handle_memory_map(self, args):
+        self.print_memory_map()
+
     def handle_log(self, args):
         if len(args) < 1:
             print "Error: no log level provided"
@@ -629,6 +637,7 @@ class PyOCDTool(object):
             freq_Hz = int(args[0]) * 1000
         except:
             print "Error: invalid frequency"
+            return 1
         self.transport.setClock(freq_Hz)
 
         if self.transport.mode == pyOCD.transport.cmsis_dap.DAP_MODE_SWD:
@@ -647,6 +656,21 @@ class PyOCDTool(object):
 
     def handle_exit(self, args):
         raise ToolExitException()
+
+    def isFlashWrite(self, args):
+        mem_map = self.board.target.getMemoryMap()
+        region = mem_map.getRegionForAddress(args.write)
+        if (region is None) or (not region.isFlash):
+            return False
+
+        if args.width == 8:
+            l = len(args.data)
+        elif args.width == 16:
+            l = len(args.data)*2
+        elif args.width == 32:
+            l = len(args.data)*4
+
+        return region.containsRange(args.write, length=l)
 
     ## @brief Convert an argument to a 32-bit integer.
     #
@@ -692,6 +716,11 @@ class PyOCDTool(object):
             print "{:>8} {:#010x} ".format(reg + ':', regValue),
             if i % 3 == 2:
                 print
+
+    def print_memory_map(self):
+        print "Region          Start         End           Blocksize"
+        for region in self.target.getMemoryMap():
+            print "{:<15} {:#010x}    {:#010x}    {}".format(region.name, region.start, region.end, region.blocksize if region.isFlash else '-')
 
     def print_disasm(self, code, startAddr):
         if not isCapstoneAvailable:
