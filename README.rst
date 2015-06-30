@@ -29,21 +29,15 @@ You can use the following interfaces:
 Installation
 ------------
 
-The latest stable version of pyOCD may be done via  `pip <https://pip.pypa.io/en/stable/index.html>`__ as follows:
-
-.. code:: shell
-
-    $ pip install --pre -U pyocd
-
 To install the latest development version (master branch), you can do
 the following:
 
 .. code:: shell
 
-    $ pip install --pre -U https://github.com/mbedmicro/pyOCD/archive/master.zip
+    $ pip install --pre -U https://github.com/<user>/pyOCD/archive/master.zip
 
-Note that you may run into permissions issues running these commands.
-You have a few options here:
+| Note that you may run into permissions issues running these commands.
+| You have a few options here:
 
 #. Run with ``sudo -H`` to install pyOCD and dependencies globally
 #. Specify the ``--user`` option to install local to your user
@@ -54,19 +48,19 @@ You can also install from source by cloning the git repository and running
 
 .. code:: shell
 
-    python setup.py install
+    $ python setup.py install
 
 Standalone GDB Server
 ---------------------
 
-When you install pyOCD via pip, you should be able to execute the
-following in order to start a GDB server powered by pyOCD:
+Once you have installed pyOCD, you should be able to execute the
+the following in order to start a GDB server:
 
 .. code:: shell
 
-    pyocd-gdbserver
+    $ pyocd-gdbserver
 
-You can get additional help by running ``pyocd-gdbserver --help``.
+For additional help and options run ``pyocd-gdbserver --help``.
 
 Recommended GDB and IDE setup
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -196,13 +190,14 @@ Python:
 
 gdb server:
 
-::
+.. code:: shell
 
-    arm-none-eabi-gdb basic.elf
+    $ arm-none-eabi-gdb basic.elf
 
-    <gdb> target remote localhost:3333
-    <gdb> load
-    <gdb> continue
+    (gdb) target remote localhost:3333
+    (gdb) load
+    (gdb) info registers
+    (gdb) continue
 
 Architecture
 ------------
