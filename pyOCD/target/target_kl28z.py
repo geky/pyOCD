@@ -18,7 +18,7 @@
 from target_kinetis import Kinetis
 import logging
 from cortex_m import (NVIC_AIRCR, NVIC_AIRCR_SYSRESETREQ)
-from ..transport.transport import TransferError
+from ..transport import TransferError
 
 SIM_SDID = 0x40075024
 SIM_SDID_KEYATTR_MASK = 0x70

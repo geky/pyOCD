@@ -18,8 +18,8 @@ from xml.etree.ElementTree import Element, SubElement, tostring
 
 from .target import Target
 from .target import TARGET_RUNNING, TARGET_HALTED, WATCHPOINT_READ, WATCHPOINT_WRITE, WATCHPOINT_READ_WRITE
-from ..transport.cmsis_dap import DP_REG, AP_REG
-from ..transport.transport import READ_START, READ_NOW, READ_END
+from ..transport import READ_START, READ_NOW, READ_END
+from ..transport import DP_REG, AP_REG
 from ..gdbserver import signals
 from ..utility import conversion
 import logging

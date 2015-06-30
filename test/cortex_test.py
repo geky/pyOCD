@@ -27,7 +27,7 @@ sys.path.insert(0, parentdir)
 import pyOCD
 from pyOCD.board import MbedBoard
 from pyOCD.utility.conversion import float2int
-from pyOCD.transport import TransferError
+from pyDAPLink import TransferError
 from test_util import Test, TestResult
 import logging
 from random import randrange
