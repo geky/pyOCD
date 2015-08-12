@@ -65,7 +65,7 @@ class MbedBoard(Board):
     Particularly, this class allows you to dynamically determine
     the type of all boards connected based on the id board
     """
-    def __init__(self, connection, board_id, unique_id, target = None, transport = "cmsis_dap", frequency = 1000000):
+    def __init__(self, transport, board_id, unique_id, target = None, transport = "cmsis_dap", frequency = 1000000):
         """
         Init the board
         """
@@ -85,7 +85,7 @@ class MbedBoard(Board):
         if target is None:
             raise Exception("Unknown board target")
 
-        super(MbedBoard, self).__init__(target, target, connection, transport, frequency)
+        super(MbedBoard, self).__init__(target, target, transport, transport, frequency)
         self.unique_id = unique_id
         self.target_type = target
     
