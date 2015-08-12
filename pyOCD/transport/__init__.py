@@ -16,6 +16,7 @@
 """
 
 from pyDAPLink import AP_REG, DP_REG
+from pyDAPLink import READ_NOW, READ_START, READ_END
 from pyDAPLink import TransferError
 
 from cmsis_dap import CMSIS_DAP

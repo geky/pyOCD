@@ -26,9 +26,8 @@ class Board(object):
     This class associates a target, a flash, a transport and an interface
     to create a board
     """
-    def __init__(self, target, flash, interface, transport = "cmsis_dap", frequency = 1000000):
-        self.interface = interface
-        self.transport = TRANSPORT[transport](self.interface)
+    def __init__(self, target, flash, connection, transport = "cmsis_dap", frequency = 1000000):
+        self.transport = connection
         self.target = TARGET[target](self.transport)
         self.flash = FLASH[flash](self.target)
         self.target.setFlash(self.flash)
@@ -48,14 +47,13 @@ class Board(object):
         Initialize the board: interface, transport and target
         """
         logging.debug("init board %s", self)
-        self.interface.init()
+        self.transport.init(self.debug_clock_frequency)
         packet_count = self.getPacketCount()
         logging.info("board allows %i concurrent packets", packet_count)
         if packet_count < 1:
             logging.error('packet count of %i outside of expected range', packet_count)
             packet_count = 1
-        self.interface.setPacketCount(packet_count)
-        self.transport.init(self.debug_clock_frequency)
+        self.transport.setPacketCount(packet_count)
         self.target.init()
         
     def uninit(self, resume = True ):
@@ -68,19 +66,21 @@ class Board(object):
         self.closed = True
             
         logging.debug("uninit board %s", self)
-        try:
-            if resume:
-                try:
-                    self.target.resume()
-                except:
-                    logging.error("exception during uninit")
-                    pass
-            self.transport.uninit()
-        finally:
-            self.interface.close()
-    
+        if resume:
+            try:
+                self.target.resume()
+            except:
+                logging.error("exception during uninit")
+                pass
+        self.transport.uninit()
+
     def getInfo(self):
-        return self.interface.getInfo()
+        return ('%s %s (%04x:%04x:%x)' %
+                (self.transport.vendor_name,
+                 self.transport.product_name,
+                 self.transport.vid,
+                 self.transport.pid,
+                 self.transport.iid))
 
     def getPacketCount(self):
         """

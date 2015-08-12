@@ -26,10 +26,11 @@ sys.path.insert(0, parentdir)
 
 import pyOCD
 from pyOCD.board import MbedBoard
+from pyOCD.transport import READ_NOW,READ_START,READ_END
 from test_util import Test, TestResult
 import logging
 
-USB_TEST_XFER_COUNT = 128 * 1024 / 64  # 128 KB = 2K usb packets
+DP_TEST_XFER_COUNT = 128 * 1024 / 64  # 128 KB = 2K usb packets
 
 class SpeedTestResult(TestResult):
     def __init__(self):
@@ -42,7 +43,7 @@ class SpeedTest(Test):
     def print_perf_info(self, result_list):
         result_list = filter(lambda x : isinstance(x, SpeedTestResult), result_list)
         print("\r\n\r\n------ Speed Test Performance ------")
-        print("{:<10}{:<16}{:<16}{:<16}{:<16}".format("Target","Write Speed","Read Speed", "USB speed", "USB overlap speed"))
+        print("{:<10}{:<16}{:<16}{:<16}{:<16}".format("Target","Write Speed","Read Speed", "DP speed", "DP overlap speed"))
         print("")
         for result in result_list:
             if result.passed:
@@ -152,7 +153,6 @@ def speed_test(board_id):
         target = board.target
         transport = board.transport
         flash = board.flash
-        interface = board.interface
 
         test_pass_count = 0
         test_count = 0
@@ -161,40 +161,37 @@ def speed_test(board_id):
         transport.setClock(test_clock)
         transport.setDeferredTransfer(True)
 
-        print "\r\n\r\n------ TEST USB TRANSFER SPEED ------"
-        max_packets = interface.getPacketCount()
-        data_to_write = [0x80] + [0x00] * 63
+        print "\r\n\r\n------ TEST DP TRANSFER SPEED ------"
+        max_packets = transport.info('PACKET_COUNT')
         start = time()
-        packet_count = USB_TEST_XFER_COUNT
+        packet_count = DP_TEST_XFER_COUNT
         while packet_count > 0:
-                interface.write(data_to_write)
-                interface.read()
-                packet_count = packet_count - 1
+            transport.readDP(0, READ_NOW)
+            packet_count = packet_count - 1
         stop = time()
-        result.usb_speed = USB_TEST_XFER_COUNT * 64 / (stop-start)
-        print "USB transfer rate %f B/s" % result.usb_speed
+        result.usb_speed = DP_TEST_XFER_COUNT * 64 / (stop-start)
+        print "DP transfer rate %f B/s" % result.usb_speed
 
-        print "\r\n\r\n------ TEST OVERLAPPED USB TRANSFER SPEED ------"
-        max_packets = interface.getPacketCount()
+        print "\r\n\r\n------ TEST OVERLAPPED DP TRANSFER SPEED ------"
+        max_packets = transport.info('PACKET_COUNT')
         print("Concurrent packets: %i" % max_packets)
-        data_to_write = [0x80] + [0x00] * 63
         start = time()
-        packet_count = USB_TEST_XFER_COUNT
+        packet_count = DP_TEST_XFER_COUNT
         reads_pending = 0
         while packet_count > 0 or reads_pending > 0:
             # Make sure the transmit buffer stays saturated
             while packet_count > 0 and reads_pending < max_packets:
-                interface.write(data_to_write)
+                transport.readDP(0, READ_START)
                 packet_count = packet_count - 1
                 reads_pending = reads_pending + 1
 
             # Read data
             if reads_pending > 0:
-                interface.read()
+                transport.readDP(0, READ_END)
                 reads_pending = reads_pending - 1
         stop = time()
-        result.usb_overlapped = USB_TEST_XFER_COUNT * 64 / (stop-start)
-        print "USB transfer rate %f B/s" % result.usb_overlapped
+        result.usb_overlapped = DP_TEST_XFER_COUNT * 64 / (stop-start)
+        print "DP transfer rate %f B/s" % result.usb_overlapped
 
         print "\r\n\r\n------ TEST RAM READ / WRITE SPEED ------"
         test_addr = ram_start

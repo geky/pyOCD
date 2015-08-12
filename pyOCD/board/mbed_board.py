@@ -65,7 +65,7 @@ class MbedBoard(Board):
     Particularly, this class allows you to dynamically determine
     the type of all boards connected based on the id board
     """
-    def __init__(self, interface, board_id, unique_id, target = None, transport = "cmsis_dap", frequency = 1000000):
+    def __init__(self, connection, board_id, unique_id, target = None, transport = "cmsis_dap", frequency = 1000000):
         """
         Init the board
         """
@@ -85,7 +85,7 @@ class MbedBoard(Board):
         if target is None:
             raise Exception("Unknown board target")
 
-        super(MbedBoard, self).__init__(target, target, interface, transport, frequency)
+        super(MbedBoard, self).__init__(target, target, connection, transport, frequency)
         self.unique_id = unique_id
         self.target_type = target
     
@@ -139,6 +139,10 @@ class MbedBoard(Board):
         """
         Return an array of all mbed boards connected
         """
+        # Create transport
+        daplink = DAPLink()
+        daplink.init()
+
         first = True
         while True:
             while True:
@@ -148,7 +152,7 @@ class MbedBoard(Board):
                     # exception comes in there will be no resources to close
                     sleep(0.2)
             
-                all_mbeds = DAPLink.getConnectedInterfaces(mbed_vid, mbed_pid)
+                all_mbeds = daplink.getConnectedBoards(mbed_vid, mbed_pid)
                 if all_mbeds == None:
                     all_mbeds = []
                 
@@ -166,28 +170,18 @@ class MbedBoard(Board):
                 
             mbed_boards = []
             for mbed in all_mbeds:
-                try:
-                    mbed.write([0x80])
-                    u_id_ = mbed.read()
-                    board_id = array.array('B', [i for i in u_id_[2:6]]).tostring()
-                    unique_id = array.array('B', [i for i in u_id_[2:2+u_id_[1]]]).tostring()
-                    if board_id not in BOARD_ID_TO_INFO:
-                        logging.info("Unsupported board found: %s" % board_id)
-                        if target_override is None:
-                            # TODO - if no board can be determined treat this as a generic cortex-m device
-                            logging.info("Target could not be determined.  Specify target manually to use board")
-                            mbed.close()
-                            continue
+                board_id = mbed.serial_number[:4]
+                unique_id = mbed.serial_number
+                if board_id not in BOARD_ID_TO_INFO:
+                    logging.info("Unsupported board found: %s" % board_id)
+                    if target_override is None:
+                        # TODO - if no board can be determined treat this as a generic cortex-m device
+                        logging.info("Target could not be determined.  Specify target manually to use board")
+                        continue
 
-                    new_mbed = MbedBoard(mbed, board_id, unique_id, target_override, transport, frequency)
-                    logging.info("new board id detected: %s", unique_id)
-                    mbed_boards.append(new_mbed)
-                    if close:
-                        mbed.close()
-                except:
-                    #TODO - close all boards when an exception occurs
-                    mbed.close()
-                    raise
+                new_mbed = MbedBoard(mbed, board_id, unique_id, target_override, transport, frequency)
+                logging.info("new board id detected: %s", unique_id)
+                mbed_boards.append(new_mbed)
             
             if len(mbed_boards) > 0 or not blocking:
                 return mbed_boards
@@ -209,8 +203,6 @@ class MbedBoard(Board):
             for mbed in all_mbeds:
                 if mbed.unique_id == (board_id):    
                     new_mbed_list.append(mbed)
-                else:
-                    mbed.interface.close()
             assert len(new_mbed_list) <= 1
             all_mbeds = new_mbed_list
 
@@ -224,8 +216,6 @@ class MbedBoard(Board):
             
         # Select first board and close others if True
         if return_first:
-            for i in range(1, len(all_mbeds)):
-                all_mbeds[i].interface.close()
             all_mbeds = all_mbeds[0:1]
         
         # Ask use to select boards if there is more than 1 left
@@ -252,20 +242,12 @@ class MbedBoard(Board):
                         index += 1
                 else:
                     break
-            # close all others mbed connected
-            for mbed in all_mbeds:
-                if mbed != all_mbeds[ch]:
-                    mbed.interface.close()
             all_mbeds = all_mbeds[ch:ch+1]
             
         assert len(all_mbeds) == 1
         mbed = all_mbeds[0]
         if init_board:
-            try:
-                mbed.init()
-            except:
-                mbed.interface.close()
-                raise
+            mbed.init()
         return mbed
 
     def getPacketCount(self):

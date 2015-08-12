@@ -80,8 +80,6 @@ def cortex_test(board_id):
         f = None
         binary_file = "l1_"
 
-        interface = None
-
         target_type = board.getTargetType()
 
         binary_file = os.path.join(parentdir, 'binaries', board.getTestBinary())
@@ -155,7 +153,6 @@ def cortex_test(board_id):
         target = board.target
         transport = board.transport
         flash = board.flash
-        interface = board.interface
 
         transport.setClock(test_clock)
         transport.setDeferredTransfer(True)

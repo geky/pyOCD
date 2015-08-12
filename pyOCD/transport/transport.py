@@ -15,22 +15,11 @@
  limitations under the License.
 """
 
-class Transport(object):
+from pyDAPLink import READ_NOW, READ_START, READ_END
 
-    # Read modes that can be overwritten for each transport:
-    # Start a read.  This must be followed by READ_END of the
-    # same type and in the same order
-    READ_START = 1
-    # Read immediately
-    READ_NOW = 2
-    # Get the result of a read started with READ_START
-    READ_END = 3
 
-    def __init__(self, interface):
-        self.interface = interface
-        return
-
-    def init(self):
+class TransportConnection(object):
+    def init(self, frequency = 1000000):
         return
 
     def uninit(self):
@@ -39,10 +28,10 @@ class Transport(object):
     def info(self, request):
         return
 
-    def readDP(self, addr, mode=READ_NOW):
+    def writeDP(self, addr, data):
         return
 
-    def writeDP(self, addr, data):
+    def readDP(self, addr, mode=READ_NOW):
         return
 
     def writeAP(self, addr, data):
@@ -60,16 +49,13 @@ class Transport(object):
     def writeBlock32(self, addr, data):
         return
 
-    def readBlock32(self, addr, data):
-        return
-
-    def assertReset(self, asserted):
-        return
-
-    def getUniqueID(self):
+    def readBlock32(self, addr, size):
         return
 
     def reset(self):
+        return
+
+    def assertReset(self, asserted):
         return
 
     def setClock(self, frequency):
@@ -80,3 +66,15 @@ class Transport(object):
 
     def flush(self):
         return
+
+
+class Transport(object):
+    def init(self, frequency = 1000000):
+        return
+
+    def uninit(self):
+        return
+
+    def getConnectedBoards(self, vid, pid):
+        return
+

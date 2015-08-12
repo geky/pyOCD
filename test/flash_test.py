@@ -35,7 +35,6 @@ from test_util import Test, TestResult
 addr = 0
 size = 0
 
-interface = None
 board = None
 
 import logging
@@ -185,7 +184,6 @@ def flash_test(board_id):
         target = board.target
         transport = board.transport
         flash = board.flash
-        interface = board.interface
 
         transport.setClock(test_clock)
         transport.setDeferredTransfer(True)

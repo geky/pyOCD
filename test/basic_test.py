@@ -35,8 +35,6 @@ def basic_test(board_id, file):
         f = None
         binary_file = "l1_"
 
-        interface = None
-
         target_type = board.getTargetType()
 
         if file is None:
@@ -111,7 +109,6 @@ def basic_test(board_id, file):
         target = board.target
         transport = board.transport
         flash = board.flash
-        interface = board.interface
         
         
         print "\r\n\r\n------ GET Unique ID ------"
