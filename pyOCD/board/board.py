@@ -26,7 +26,7 @@ class Board(object):
     This class associates a target, a flash, a transport and an interface
     to create a board
     """
-    def __init__(self, target, flash, transport, transport = "cmsis_dap", frequency = 1000000):
+    def __init__(self, target, flash, transport, frequency = 1000000):
         self.transport = transport
         self.target = TARGET[target](self.transport)
         self.flash = FLASH[flash](self.target)

@@ -18,7 +18,7 @@
 import sys, os
 import logging, array
 
-from pyDAPLink import DAPLink
+from pyOCD.transport import TRANSPORT
 from time import sleep
 from board import Board
 
@@ -65,7 +65,7 @@ class MbedBoard(Board):
     Particularly, this class allows you to dynamically determine
     the type of all boards connected based on the id board
     """
-    def __init__(self, transport, board_id, unique_id, target = None, transport = "cmsis_dap", frequency = 1000000):
+    def __init__(self, transport, board_id, unique_id, target = None, frequency = 1000000):
         """
         Init the board
         """
@@ -85,7 +85,7 @@ class MbedBoard(Board):
         if target is None:
             raise Exception("Unknown board target")
 
-        super(MbedBoard, self).__init__(target, target, transport, transport, frequency)
+        super(MbedBoard, self).__init__(target, target, transport, frequency)
         self.unique_id = unique_id
         self.target_type = target
     
@@ -140,8 +140,8 @@ class MbedBoard(Board):
         Return an array of all mbed boards connected
         """
         # Create transport
-        daplink = DAPLink()
-        daplink.init()
+        dap = TRANSPORT[transport]()
+        dap.init()
 
         first = True
         while True:
@@ -152,7 +152,7 @@ class MbedBoard(Board):
                     # exception comes in there will be no resources to close
                     sleep(0.2)
             
-                all_mbeds = daplink.getConnectedBoards(mbed_vid, mbed_pid)
+                all_mbeds = dap.getConnectedBoards(mbed_vid, mbed_pid)
                 if all_mbeds == None:
                     all_mbeds = []
                 
@@ -179,7 +179,7 @@ class MbedBoard(Board):
                         logging.info("Target could not be determined.  Specify target manually to use board")
                         continue
 
-                new_mbed = MbedBoard(mbed, board_id, unique_id, target_override, transport, frequency)
+                new_mbed = MbedBoard(mbed, board_id, unique_id, target_override, frequency)
                 logging.info("new board id detected: %s", unique_id)
                 mbed_boards.append(new_mbed)
             
